@@ -3,9 +3,8 @@ import cors from './src/services/cors.service.js';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import apiRoutes from './src/routes/apiRoutes.js';
-import webRoutes from './src/routes/webRoutes.js';
 import { initDB } from "./src/models/index.js"
-import {initPassport} from "./src/services/passport.service.js"
+import { initPassport } from "./src/services/passport.service.js"
 
 const PORT = process.env.PORT || 3000;
 
@@ -20,7 +19,6 @@ app.use(express.urlencoded({ extended: true })); // to accept x-www-form-urlenco
 initPassport(app);
 
 app.use('/api', apiRoutes);
-app.use('/', webRoutes);
 
 await initDB()
 

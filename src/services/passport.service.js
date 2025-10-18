@@ -1,6 +1,6 @@
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
-import WebUser from "../models/WebUser.js"
+import User from "../models/User.js"
 import session from "express-session"
 
 passport.use(
@@ -11,7 +11,7 @@ passport.use(
 					callbackURL: process.env.GOOGLE_CALLBACK_URL,
 				},
 				async (accessToken, refreshToken, profile, cb) => {
-					const [user, created] = await WebUser.findOrCreate({
+					const [user, created] = await User.findOrCreate({
 						where: { provider_id: profile.id, provider: 'google' },
 						defaults: {
 							name: profile.displayName,
@@ -43,7 +43,7 @@ passport.serializeUser((user, done) => {
 });
 
 passport.deserializeUser((id, done) => {
-	WebUser.findByPk(id)
+	User.findByPk(id)
 			.then(user => done(null, user))
 			.catch(err => done(err));
 });
