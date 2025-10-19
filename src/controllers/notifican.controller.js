@@ -6,7 +6,7 @@ export const initial = async (req, res) => {
 	const userId = req.user.id;
 	return res.json({
 		userId: userId,
-		url: `https://api-notifican.com/${req.user.uuid}`,
+		url: `https://api.notifican.com/${req.user.uuid}`,
 		categories: await Category.findAll({
 			where: { user_id: userId }
 		}),
@@ -116,21 +116,6 @@ export const deleteCategory = async (req, res) => {
 	}
 };
 
-const log = async (req, res) => {
-	try {
-		const { message } = req.body;
-
-		await Message.create({
-			user_id: req.user.id,
-			text: message,
-		});
-
-		return res.status(201).json({ success: true });
-	} catch (error) {
-		return res.status(500).json({ error: error.message });
-	}
-}
-
 const saveToken = async (req, res) => {
 	try {
 		const { token } = req.body;
@@ -156,5 +141,4 @@ export default {
 	updateCategory,
 	deleteCategory,
 	saveToken,
-	log
 };

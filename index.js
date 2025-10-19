@@ -18,7 +18,7 @@ app.use(express.urlencoded({ extended: true })); // to accept x-www-form-urlenco
 
 initPassport(app);
 
-app.use('/api', apiRoutes);
+app.use('/', apiRoutes);
 
 await initDB()
 

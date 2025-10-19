@@ -13,6 +13,5 @@ router.put('/categories/:id', notificanController.updateCategory);
 router.delete('/categories/:id', notificanController.deleteCategory);
 
 router.post('/token', notificanController.saveToken);
-router.post('/', notificanController.log);
 
 export default router;
