@@ -4,8 +4,6 @@ import { sendFCMPushNotification } from "../services/fcm.service.js"
 
 const send = async (req, res) => {
 	try {
-		console.log('123123');
-		console.log(req.body);
 		const { uuid } = req.params;
 		const { message, categoryId } = req.body || {};
 
