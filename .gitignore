@@ -3,6 +3,7 @@ node_modules
 /dist
 /coverage
 deploy
+keys
 
 # local env files
 .env
