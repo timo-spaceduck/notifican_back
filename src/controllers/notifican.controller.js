@@ -16,6 +16,28 @@ export const initial = async (req, res) => {
 	});
 };
 
+export const getMessages = async (req, res) => {
+	try {
+		const lastId = parseInt(req.query.lastId) || null;
+		const limit = parseInt(req.query.limit) || 20;
+		const categoryId = req.query.categoryId || null;
+
+		const messages = await Message.findAndCountAll({
+			where: {
+				user_id: req.user.id,
+				...(lastId && { id: { $lt: lastId } }),
+				...(categoryId && { category_id: categoryId })
+			},
+			limit,
+			order: [['id', 'DESC']]
+		});
+
+		return res.json(messages);
+	} catch (error) {
+		return res.status(500).json({ error: error.message });
+	}
+}
+
 // Get all categories for a user
 export const getCategories = async (req, res) => {
 	try {
@@ -116,6 +138,29 @@ export const deleteCategory = async (req, res) => {
 	}
 };
 
+export const deleteMessage = async (req, res) => {
+	try {
+		const { id } = req.params;
+
+		const message = await Message.findOne({
+			where: {
+				id,
+				user_id: req.user.id
+			}
+		});
+
+		if (!message) {
+			return res.status(404).json({ error: 'Message not found' });
+		}
+
+		await message.destroy();
+
+		return res.status(204).send();
+	} catch (error) {
+		return res.status(500).json({ error: error.message });
+	}
+}
+
 const saveToken = async (req, res) => {
 	try {
 		const { token } = req.body;
@@ -135,10 +180,12 @@ const saveToken = async (req, res) => {
 
 export default {
 	initial,
+	getMessages,
 	getCategories,
 	getCategory,
 	createCategory,
 	updateCategory,
 	deleteCategory,
+	deleteMessage,
 	saveToken,
 };
