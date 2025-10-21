@@ -1,6 +1,7 @@
 import Category from "../models/Category.js"
 import Message from "../models/Message.js"
 import User from "../models/User.js"
+import {Op} from "sequelize"
 
 export const initial = async (req, res) => {
 	const userId = req.user.id;
@@ -19,13 +20,21 @@ export const initial = async (req, res) => {
 export const getMessages = async (req, res) => {
 	try {
 		const lastId = parseInt(req.query.lastId) || null;
-		const limit = parseInt(req.query.limit) || 20;
+		let limit = parseInt(req.query.limit) || 20;
+		if(limit > 100) limit = 100;
 		const categoryId = req.query.categoryId || null;
 
 		const messages = await Message.findAndCountAll({
+			include: [
+				{
+					model: Category,
+					as: 'category',
+					attributes: ['id', 'title']
+				}
+			],
 			where: {
 				user_id: req.user.id,
-				...(lastId && { id: { $lt: lastId } }),
+				...(lastId && { id: { [Op.lt]: lastId } }),
 				...(categoryId && { category_id: categoryId })
 			},
 			limit,

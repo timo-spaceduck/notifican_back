@@ -44,12 +44,12 @@ const Message = sequelize.define('Message', {
 
 Message.belongsTo(User, {
 	foreignKey: "user_id",
-	as: "User"
+	as: "user"
 });
 
 Message.belongsTo(Category, {
 	foreignKey: "category_id",
-	as: "Category"
+	as: "category"
 });
 
 export default Message;
