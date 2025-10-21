@@ -23,8 +23,16 @@ const Message = sequelize.define('Message', {
 			key: "id"
 		}
 	},
+	title: {
+		type: DataTypes.STRING,
+		allowNull: true,
+	},
 	text: {
 		type: DataTypes.TEXT,
+		allowNull: true,
+	},
+	data: {
+		type: DataTypes.JSON,
 		allowNull: true,
 	}
 }, {

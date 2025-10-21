@@ -5,7 +5,7 @@ import { sendFCMPushNotification } from "../services/fcm.service.js"
 const send = async (req, res) => {
 	try {
 		const { uuid } = req.params;
-		const { message, categoryId } = req.body || {};
+		const { message, categoryId, title, data } = req.body || {};
 
 		const user = await User.findOne({
 			where: { uuid }
@@ -21,6 +21,9 @@ const send = async (req, res) => {
 
 		await Message.create({
 			user_id: user.id,
+			category_id: categoryId,
+			title: title || '',
+			data: data || {},
 			text: message,
 		});
 

@@ -76,11 +76,12 @@ export const getCategory = async (req, res) => {
 // Create a new category
 export const createCategory = async (req, res) => {
 	try {
-		const { title } = req.body;
+		const { title, notification_enabled } = req.body || {};
 
 		const category = await Category.create({
 			user_id: req.user.id,
-			title
+			title,
+			notification_enabled
 		});
 
 		return res.status(201).json(category);
@@ -93,7 +94,7 @@ export const createCategory = async (req, res) => {
 export const updateCategory = async (req, res) => {
 	try {
 		const { id } = req.params;
-		const { title } = req.body;
+		const { title, notification_enabled } = req.body || {};
 
 		const category = await Category.findOne({
 			where: {
@@ -106,7 +107,7 @@ export const updateCategory = async (req, res) => {
 			return res.status(404).json({ error: 'Category not found' });
 		}
 
-		await category.update({ title });
+		await category.update({ title, notification_enabled });
 
 		return res.json(category);
 	} catch (error) {
@@ -131,6 +132,8 @@ export const deleteCategory = async (req, res) => {
 		}
 
 		await category.destroy();
+
+		console.log('Deleted category with id:', id);
 
 		return res.status(204).send();
 	} catch (error) {
