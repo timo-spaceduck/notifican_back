@@ -20,6 +20,8 @@ export const sendFCMPushNotification = async (token, title, body, data = {}) => 
 		token,
 	};
 
+	console.log(message);
+
 	try {
 		const response = await admin.messaging().send(message);
 		console.log("Notification sent successfully:", response);
