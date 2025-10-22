@@ -15,6 +15,11 @@ export default async function (req, res, next) {
 		return res.status(401).json({ message: 'Unauthorized user' });
 	}
 
+	if(!user.dataValues?.api_token) {
+		await user.update({ api_token: crypto.randomUUID().toString() });
+		// user.dataValues.api_token = crypto.randomUUID().toString();
+	}
+
 	req.user = user.dataValues;
 
 	next();

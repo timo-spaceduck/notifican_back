@@ -14,6 +14,10 @@ const User = sequelize.define('User', {
 	push_token: {
 		type: DataTypes.STRING,
 		allowNull: true,
+	},
+	api_token: {
+		type: DataTypes.STRING,
+		allowNull: true,
 	}
 }, {
 	tableName: 'users',
