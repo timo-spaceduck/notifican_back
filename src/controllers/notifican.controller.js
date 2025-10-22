@@ -9,13 +9,13 @@ export const initial = async (req, res) => {
 	return res.json({
 		userId: userId,
 		url: `https://api.notifican.com/${req.user.uuid}`,
-		apiToken: req.user.api_token,
-		categories: await Category.findAll({
-			where: { user_id: userId }
-		}),
-		messages: await Message.findAll({
-			where: { user_id: userId }
-		}),
+		apiKey: req.user.api_token,
+		// categories: await Category.findAll({
+		// 	where: { user_id: userId }
+		// }),
+		// messages: await Message.findAll({
+		// 	where: { user_id: userId }
+		// }),
 	});
 };
 
