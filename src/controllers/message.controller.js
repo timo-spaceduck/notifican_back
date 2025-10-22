@@ -44,7 +44,7 @@ const send = async (req, res) => {
 			let tokenTitle = title;
 
 			if(!tokenTitle && categoryId) {
-				const category = await Category.findOne(categoryId);
+				const category = await Category.findByPk(categoryId);
 				if(category && category.user_id === user.id) {
 					tokenTitle = category.title;
 				}
