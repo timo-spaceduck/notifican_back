@@ -180,6 +180,8 @@ const saveToken = async (req, res) => {
 	try {
 		const { token } = req.body;
 
+		console.log(token);
+
 		await User.update(
 				{ push_token: token },
 				{
