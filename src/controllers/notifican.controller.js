@@ -10,9 +10,9 @@ export const initial = async (req, res) => {
 		userId: userId,
 		url: `https://api.notifican.com/${req.user.uuid}`,
 		apiKey: req.user.api_token,
-		// categories: await Category.findAll({
-		// 	where: { user_id: userId }
-		// }),
+		categories: await Category.findAll({
+			where: { user_id: userId }
+		}),
 		// messages: await Message.findAll({
 		// 	where: { user_id: userId }
 		// }),
@@ -21,10 +21,11 @@ export const initial = async (req, res) => {
 
 export const getMessages = async (req, res) => {
 	try {
-		const lastId = parseInt(req.query.lastId) || null;
-		let limit = parseInt(req.query.limit) || 20;
+		const lastId = parseInt(req.query?.lastId) || null;
+		let limit = parseInt(req.query?.limit) || 20;
 		if(limit > 100) limit = 100;
-		const categoryId = req.query.categoryId || null;
+		const categoryId = req.query?.categoryId || null;
+		const newer = req.query?.newer || false;
 
 		const messages = await Message.findAndCountAll({
 			include: [
@@ -36,7 +37,7 @@ export const getMessages = async (req, res) => {
 			],
 			where: {
 				user_id: req.user.id,
-				...(lastId && { id: { [Op.lt]: lastId } }),
+				...(lastId && { id: { [newer ? Op.gt : Op.lt]: lastId } }),
 				...(categoryId && { category_id: categoryId })
 			},
 			limit,
