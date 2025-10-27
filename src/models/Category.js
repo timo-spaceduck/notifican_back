@@ -19,6 +19,10 @@ const Category = sequelize.define('Category', {
 		type: DataTypes.STRING,
 		allowNull: true,
 	},
+	color: {
+		type: DataTypes.STRING,
+		allowNull: true,
+	},
 	notification_enabled: {
 		type: DataTypes.BOOLEAN,
 		defaultValue: true,

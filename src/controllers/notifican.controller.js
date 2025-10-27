@@ -88,11 +88,12 @@ export const getCategory = async (req, res) => {
 // Create a new category
 export const createCategory = async (req, res) => {
 	try {
-		const { title, notification_enabled } = req.body || {};
+		const { title, color, notification_enabled } = req.body || {};
 
 		const category = await Category.create({
 			user_id: req.user.id,
 			title,
+			color,
 			notification_enabled
 		});
 
@@ -106,7 +107,7 @@ export const createCategory = async (req, res) => {
 export const updateCategory = async (req, res) => {
 	try {
 		const { id } = req.params;
-		const { title, notification_enabled } = req.body || {};
+		const { title, color, notification_enabled } = req.body || {};
 
 		const category = await Category.findOne({
 			where: {
