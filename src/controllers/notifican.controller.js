@@ -120,7 +120,7 @@ export const updateCategory = async (req, res) => {
 			return res.status(404).json({ error: 'Category not found' });
 		}
 
-		await category.update({ title, notification_enabled });
+		await category.update({ title, color, notification_enabled });
 
 		return res.json(category);
 	} catch (error) {
