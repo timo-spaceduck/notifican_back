@@ -14,6 +14,7 @@ router.put('/categories/:id', notificanController.updateCategory);
 router.delete('/categories/:id', notificanController.deleteCategory);
 
 router.delete('/message/:id', notificanController.deleteMessage);
+router.post('/messages/read', notificanController.readMessages);
 
 router.post('/token', notificanController.saveToken);
 

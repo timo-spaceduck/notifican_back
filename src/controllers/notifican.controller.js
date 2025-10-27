@@ -176,6 +176,28 @@ export const deleteMessage = async (req, res) => {
 	}
 }
 
+export const readMessages = async (req, res) => {
+	try {
+		const { ids } = req.body;
+
+		await Message.update(
+				{ is_read: true },
+				{
+					where: {
+						id: {
+							[Op.in]: ids
+						},
+						user_id: req.user.id
+					}
+				}
+		);
+
+		return res.status(200).json({ success: true });
+	} catch (error) {
+		return res.status(500).json({ error: error.message });
+	}
+}
+
 const saveToken = async (req, res) => {
 	try {
 		const { token } = req.body;
@@ -204,5 +226,6 @@ export default {
 	updateCategory,
 	deleteCategory,
 	deleteMessage,
+	readMessages,
 	saveToken,
 };

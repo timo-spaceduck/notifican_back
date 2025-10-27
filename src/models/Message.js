@@ -34,6 +34,10 @@ const Message = sequelize.define('Message', {
 	data: {
 		type: DataTypes.JSON,
 		allowNull: true,
+	},
+	is_read: {
+		type: DataTypes.BOOLEAN,
+		defaultValue: false,
 	}
 }, {
 	tableName: 'messages',
