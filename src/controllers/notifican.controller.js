@@ -24,8 +24,31 @@ export const getMessages = async (req, res) => {
 		const lastId = parseInt(req.query?.lastId) || null;
 		let limit = parseInt(req.query?.limit) || 20;
 		if(limit > 100) limit = 100;
-		const categoryId = req.query?.categoryId || null;
+		const categoryIds = (req.query?.categoryIds || '').split(',').filter(id => id);
 		const newer = req.query?.newer || false;
+		const from = req.query?.from || null;
+		const to = req.query?.to || null;
+
+		const whereConditions = {
+			user_id: req.user.id,
+			...(lastId && { id: { [newer ? Op.gt : Op.lt]: lastId } })
+		};
+
+		if (categoryIds.length) {
+			whereConditions.category_id = { [Op.in]: categoryIds };
+		}
+
+		// Handle date range filtering
+		if (from || to) {
+			const dateFilter = {};
+			if (from) {
+				dateFilter[Op.gte] = new Date(from);
+			}
+			if (to) {
+				dateFilter[Op.lte] = new Date(to);
+			}
+			whereConditions.created_at = dateFilter;
+		}
 
 		const messages = await Message.findAndCountAll({
 			include: [
@@ -35,11 +58,7 @@ export const getMessages = async (req, res) => {
 					attributes: ['id', 'title']
 				}
 			],
-			where: {
-				user_id: req.user.id,
-				...(lastId && { id: { [newer ? Op.gt : Op.lt]: lastId } }),
-				...(categoryId && { category_id: categoryId })
-			},
+			where: whereConditions,
 			limit,
 			order: [['id', 'DESC']]
 		});
