@@ -59,6 +59,25 @@ const send = async (req, res) => {
 	}
 }
 
+const stats = async (req, res) => {
+	// const messages = await Message.findAll();
+	// for(let i = 0; i < messages.length; i++) {
+	// 	const message = messages[i];
+	// 	const text = (message.text || '').split('\n');
+		// if(text.length === 4) {
+		// 	const data = {
+		// 		'platform': text[0],
+		// 		'userId': text[1],
+		// 		'message': text[2],
+		// 		'userIdDb': text[3] === 'New user' ? null : text[3].replace('Existing user: ', ''),
+		// 	}
+		// 	await message.update({ data });
+		// }
+	// }
+	return res.status(200).json({ success: true });
+}
+
 export default {
-	send
+	send,
+	stats
 };
