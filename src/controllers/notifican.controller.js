@@ -1,7 +1,8 @@
 import Category from "../models/Category.js"
 import Message from "../models/Message.js"
 import User from "../models/User.js"
-import {Op} from "sequelize"
+import { Op } from "sequelize"
+import sequelize from "../services/db.service.js"
 
 export const initial = async (req, res) => {
 	const userId = req.user.id;
@@ -237,9 +238,127 @@ const saveToken = async (req, res) => {
 	}
 }
 
+const getMessageStatsByPeriod = async (req, res) => {
+	try {
+		const { uuid } = req.params;
+		const { period, from, to } = req.query;
+
+		const authHeader = req.headers.authorization;
+		if (!authHeader || !authHeader.startsWith('Bearer ')) {
+			return res.status(401).json({ error: 'Authorization header with Bearer token required' });
+		}
+
+		const token = authHeader.split(' ')[1];
+
+		const user = await User.findOne({
+			where: { uuid }
+		});
+
+		if (!user) {
+			return res.status(404).json({ error: 'User not found' });
+		}
+
+		if (user.api_token !== token) {
+			return res.status(401).json({ error: 'Unauthorized' });
+		}
+
+		if (!period || !['day', 'hour'].includes(period)) {
+			return res.status(400).json({ error: 'Period must be "day" or "hour"' });
+		}
+
+		if (!from || !to) {
+			return res.status(400).json({ error: 'Both "from" and "to" parameters are required' });
+		}
+
+		let fromDate = new Date(from);
+		let toDate = new Date(to);
+
+		if (isNaN(fromDate.getTime()) || isNaN(toDate.getTime())) {
+			return res.status(400).json({ error: 'Invalid date format' });
+		}
+
+		if (fromDate > toDate) {
+			return res.status(400).json({ error: 'From date must be before to date' });
+		}
+
+		const maxDaysForDay = 60;
+		const maxDaysForHour = 2;
+
+		if (period === 'day') {
+			const diffTime = Math.abs(toDate - fromDate);
+			const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+			if (diffDays > maxDaysForDay) {
+				fromDate = new Date(toDate);
+				fromDate.setDate(fromDate.getDate() - maxDaysForDay);
+			}
+		} else if (period === 'hour') {
+			const diffTime = Math.abs(toDate - fromDate);
+			const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+			if (diffDays > maxDaysForHour) {
+				fromDate = new Date(toDate);
+				fromDate.setDate(fromDate.getDate() - maxDaysForHour);
+			}
+		}
+
+		const dateFormat = period === 'day' ?
+				sequelize.fn('DATE_FORMAT', sequelize.col('created_at'), '%Y-%m-%d') :
+				sequelize.fn('DATE_FORMAT', sequelize.col('created_at'), '%Y-%m-%d %H:00:00');
+
+		const messageStats = await Message.findAll({
+			attributes: [
+				[dateFormat, 'period'],
+				[sequelize.fn('COUNT', sequelize.col('id')), 'count']
+			],
+			where: {
+				user_id: user.id,
+				created_at: {
+					[Op.between]: [fromDate, toDate]
+				}
+			},
+			group: [dateFormat],
+			order: [[dateFormat, 'ASC']],
+			raw: true
+		});
+
+		const result = [];
+		const current = new Date(fromDate);
+		const end = new Date(toDate);
+
+		while (current <= end) {
+			let periodKey;
+			if (period === 'day') {
+				periodKey = current.toISOString().split('T')[0];
+				current.setDate(current.getDate() + 1);
+			} else {
+				periodKey = current.toISOString().slice(0, 13) + ':00:00';
+				current.setHours(current.getHours() + 1);
+			}
+
+			const existingStat = messageStats.find(stat => stat.period === periodKey);
+			result.push({
+				period: periodKey,
+				count: existingStat ? parseInt(existingStat.count) : 0
+			});
+		}
+
+		return res.status(200).json({
+			period,
+			from: fromDate.toISOString(),
+			to: toDate.toISOString(),
+			data: result
+		});
+
+	} catch (error) {
+		return res.status(500).json({ error: error.message });
+	}
+}
+
 export default {
 	initial,
 	getMessages,
+	getMessageStatsByPeriod,
 	getCategories,
 	getCategory,
 	createCategory,

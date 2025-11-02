@@ -5,6 +5,7 @@ const router = express.Router();
 
 router.get('/initial', notificanController.initial);
 router.get('/messages', notificanController.getMessages);
+router.get('/messages/stats', notificanController.getMessageStatsByPeriod);
 
 // Categories CRUD endpoints
 router.get('/categories', notificanController.getCategories);

@@ -65,6 +65,8 @@ const send = async (req, res) => {
 	}
 }
 
+
+
 const stats = async (req, res) => {
 	// const messages = await Message.findAll();
 	// for(let i = 0; i < messages.length; i++) {
@@ -85,5 +87,6 @@ const stats = async (req, res) => {
 
 export default {
 	send,
-	stats
+	stats,
+	messageStatsByPeriod
 };
