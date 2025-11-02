@@ -40,7 +40,7 @@ const send = async (req, res) => {
 			}
 		}
 
-		const message = await Message.create({
+		const messageCreated = await Message.create({
 			user_id: user.id,
 			category_id: categoryId,
 			title: title || '',
@@ -59,7 +59,7 @@ const send = async (req, res) => {
 			await sendFCMPushNotification(user.push_token, tokenTitle || '', message);
 		}
 
-		return res.status(201).json({ messageId: message.id });
+		return res.status(201).json({ messageId: messageCreated.id });
 	} catch (error) {
 		return res.status(500).json({ error: error.message });
 	}
