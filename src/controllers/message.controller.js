@@ -31,6 +31,15 @@ const send = async (req, res) => {
 			return res.status(404).json({ error: 'No message' });
 		}
 
+		let category;
+
+		if(categoryId) {
+			category = await Category.findByPk(categoryId);
+			if(!category || category.user_id !== user.id) {
+				return res.status(404).json({ error: 'Category not found' });
+			}
+		}
+
 		await Message.create({
 			user_id: user.id,
 			category_id: categoryId,
@@ -43,11 +52,8 @@ const send = async (req, res) => {
 
 			let tokenTitle = title;
 
-			if(!tokenTitle && categoryId) {
-				const category = await Category.findByPk(categoryId);
-				if(category && category.user_id === user.id) {
-					tokenTitle = category.title;
-				}
+			if(!tokenTitle && category) {
+				tokenTitle = category.title;
 			}
 
 			await sendFCMPushNotification(user.push_token, tokenTitle || '', message);
@@ -64,15 +70,15 @@ const stats = async (req, res) => {
 	// for(let i = 0; i < messages.length; i++) {
 	// 	const message = messages[i];
 	// 	const text = (message.text || '').split('\n');
-		// if(text.length === 4) {
-		// 	const data = {
-		// 		'platform': text[0],
-		// 		'userId': text[1],
-		// 		'message': text[2],
-		// 		'userIdDb': text[3] === 'New user' ? null : text[3].replace('Existing user: ', ''),
-		// 	}
-		// 	await message.update({ data });
-		// }
+	// if(text.length === 4) {
+	// 	const data = {
+	// 		'platform': text[0],
+	// 		'userId': text[1],
+	// 		'message': text[2],
+	// 		'userIdDb': text[3] === 'New user' ? null : text[3].replace('Existing user: ', ''),
+	// 	}
+	// 	await message.update({ data });
+	// }
 	// }
 	return res.status(200).json({ success: true });
 }
