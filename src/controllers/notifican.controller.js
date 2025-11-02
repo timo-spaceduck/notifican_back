@@ -240,7 +240,7 @@ const saveToken = async (req, res) => {
 
 const getMessageStatsByPeriod = async (req, res) => {
 	try {
-		const { period, from, to } = req.query;
+		const { period, from, to, categoryIds } = req.query;
 
 		if (!period || !['day', 'hour'].includes(period)) {
 			return res.status(400).json({ error: 'Period must be "day" or "hour"' });
@@ -286,17 +286,28 @@ const getMessageStatsByPeriod = async (req, res) => {
 				sequelize.fn('DATE_FORMAT', sequelize.col('created_at'), '%Y-%m-%d') :
 				sequelize.fn('DATE_FORMAT', sequelize.col('created_at'), '%Y-%m-%d %H:00:00');
 
+		const whereCondition = {
+			user_id: req.user.id,
+			created_at: {
+				[Op.between]: [fromDate, toDate]
+			}
+		};
+
+		if (categoryIds) {
+			const categoryIdArray = categoryIds.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id));
+			if (categoryIdArray.length > 0) {
+				whereCondition.category_id = {
+					[Op.in]: categoryIdArray
+				};
+			}
+		}
+
 		const messageStats = await Message.findAll({
 			attributes: [
 				[dateFormat, 'period'],
 				[sequelize.fn('COUNT', sequelize.col('id')), 'count']
 			],
-			where: {
-				user_id: req.user.id,
-				created_at: {
-					[Op.between]: [fromDate, toDate]
-				}
-			},
+			where: whereCondition,
 			group: [dateFormat],
 			order: [[dateFormat, 'ASC']],
 			raw: true
