@@ -55,7 +55,7 @@ export const getMessages = async (req, res) => {
 				{
 					model: Category,
 					as: 'category',
-					attributes: ['id', 'title']
+					attributes: ['id', 'title', 'color']
 				}
 			],
 			where: whereConditions,
