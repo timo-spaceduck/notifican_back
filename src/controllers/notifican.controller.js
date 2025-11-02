@@ -240,27 +240,7 @@ const saveToken = async (req, res) => {
 
 const getMessageStatsByPeriod = async (req, res) => {
 	try {
-		const { uuid } = req.params;
 		const { period, from, to } = req.query;
-
-		const authHeader = req.headers.authorization;
-		if (!authHeader || !authHeader.startsWith('Bearer ')) {
-			return res.status(401).json({ error: 'Authorization header with Bearer token required' });
-		}
-
-		const token = authHeader.split(' ')[1];
-
-		const user = await User.findOne({
-			where: { uuid }
-		});
-
-		if (!user) {
-			return res.status(404).json({ error: 'User not found' });
-		}
-
-		if (user.api_token !== token) {
-			return res.status(401).json({ error: 'Unauthorized' });
-		}
 
 		if (!period || !['day', 'hour'].includes(period)) {
 			return res.status(400).json({ error: 'Period must be "day" or "hour"' });
@@ -312,7 +292,7 @@ const getMessageStatsByPeriod = async (req, res) => {
 				[sequelize.fn('COUNT', sequelize.col('id')), 'count']
 			],
 			where: {
-				user_id: user.id,
+				user_id: req.user.id,
 				created_at: {
 					[Op.between]: [fromDate, toDate]
 				}
