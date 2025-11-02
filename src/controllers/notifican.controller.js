@@ -323,7 +323,7 @@ const getMessageStatsByPeriod = async (req, res) => {
 				periodKey = current.toISOString().split('T')[0];
 				current.setDate(current.getDate() + 1);
 			} else {
-				periodKey = current.toISOString().slice(0, 13) + ':00:00';
+				periodKey = (current.toISOString().slice(0, 13) + ':00:00').replace('T', ' ');
 				current.setHours(current.getHours() + 1);
 			}
 
