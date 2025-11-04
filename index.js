@@ -1,5 +1,4 @@
 import express from 'express';
-import cors from './src/services/cors.service.js';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import apiRoutes from './src/routes/apiRoutes.js';
@@ -12,7 +11,6 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors);
 app.use(cookieParser());
 app.use(express.json()); // to accept JSON
 app.use(express.urlencoded({ extended: true })); // to accept x-www-form-urlencoded
