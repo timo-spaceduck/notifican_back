@@ -283,11 +283,12 @@ const getMessageStatsByPeriod = async (req, res) => {
 		}
 
 		const dateFormat = period === 'day' ?
-				sequelize.fn('DATE_FORMAT', sequelize.col('created_at'), '%Y-%m-%d') :
-				sequelize.fn('DATE_FORMAT', sequelize.col('created_at'), '%Y-%m-%d %H:00:00');
+				sequelize.fn('DATE_FORMAT', sequelize.col('Message.created_at'), '%Y-%m-%d') :
+				sequelize.fn('DATE_FORMAT', sequelize.col('Message.created_at'), '%Y-%m-%d %H:00:00');
 
 		const whereCondition = {
 			user_id: req.user.id,
+			// user_id: 2,
 			created_at: {
 				[Op.between]: [fromDate, toDate]
 			}
@@ -313,6 +314,25 @@ const getMessageStatsByPeriod = async (req, res) => {
 			raw: true
 		});
 
+		const messageStatsByCategory = await Message.findAll({
+			attributes: [
+				[dateFormat, 'period'],
+				'category_id',
+				[sequelize.fn('COUNT', sequelize.col('Message.id')), 'count']
+			],
+			include: [
+				{
+					model: Category,
+					as: 'category',
+					attributes: ['id', 'title', 'color']
+				}
+			],
+			where: whereCondition,
+			group: [dateFormat, 'category_id'],
+			order: [[dateFormat, 'ASC']],
+			raw: false
+		});
+
 		const result = [];
 		const current = new Date(fromDate);
 		const end = new Date(toDate);
@@ -328,9 +348,31 @@ const getMessageStatsByPeriod = async (req, res) => {
 			}
 
 			const existingStat = messageStats.find(stat => stat.period === periodKey);
+			const totalCount = existingStat ? parseInt(existingStat.count) : 0;
+
+			const categoryStats = messageStatsByCategory.filter(stat => {
+				const statPeriod = stat.getDataValue('period');
+				return statPeriod === periodKey;
+			});
+
+			const categories = {};
+			categoryStats.forEach(stat => {
+				const categoryId = stat.category_id;
+				const category = stat.category;
+				const count = parseInt(stat.getDataValue('count'));
+
+				categories[categoryId] = {
+					id: categoryId,
+					title: category ? category.title : 'Unknown',
+					color: category ? category.color : null,
+					count: count
+				};
+			});
+
 			result.push({
 				period: periodKey,
-				count: existingStat ? parseInt(existingStat.count) : 0
+				count: totalCount,
+				categories: categories
 			});
 		}
 
@@ -342,6 +384,7 @@ const getMessageStatsByPeriod = async (req, res) => {
 		});
 
 	} catch (error) {
+		console.log(error);
 		return res.status(500).json({ error: error.message });
 	}
 }
