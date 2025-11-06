@@ -337,6 +337,9 @@ const getMessageStatsByPeriod = async (req, res) => {
 		const current = new Date(fromDate);
 		const end = new Date(toDate);
 
+		// const emulate = true;
+		// let cats = null;
+
 		while (current <= end) {
 			let periodKey;
 			if (period === 'day') {
@@ -348,7 +351,7 @@ const getMessageStatsByPeriod = async (req, res) => {
 			}
 
 			const existingStat = messageStats.find(stat => stat.period === periodKey);
-			const totalCount = existingStat ? parseInt(existingStat.count) : 0;
+			let totalCount = existingStat ? parseInt(existingStat.count) : 0;
 
 			const categoryStats = messageStatsByCategory.filter(stat => {
 				const statPeriod = stat.getDataValue('period');
@@ -357,7 +360,7 @@ const getMessageStatsByPeriod = async (req, res) => {
 
 			const categories = {};
 			categoryStats.forEach(stat => {
-				const categoryId = stat.category_id;
+				const categoryId = stat.category_id ?? 0;
 				const category = stat.category;
 				const count = parseInt(stat.getDataValue('count'));
 
@@ -368,6 +371,35 @@ const getMessageStatsByPeriod = async (req, res) => {
 					count: count
 				};
 			});
+
+
+			// if(emulate) {
+			// 	totalCount = 0;
+			// 	if(!cats) cats = await Category.findAll({
+			// 		where: { user_id: req.user.id }
+			// 	});
+			// 	cats.forEach(cat => {
+			//
+			// 		let step = 100;
+			// 		let zeroStep = 1;
+			// 		if(cat.id === 15) {
+			// 			step = 0;
+			// 			zeroStep = 0.4;
+			// 		}
+			// 		let count = Math.round(Math.random() * step);
+			// 		if(Math.random() > zeroStep) {
+			// 			count = 0;
+			// 		}
+			// 		totalCount += count;
+			// 		categories[cat.id] = {
+			// 			id: cat.id,
+			// 			title: cat.title || 'Unknown',
+			// 			color: cat.color || null,
+			// 			count
+			// 		};
+			// 	})
+			// }
+
 
 			result.push({
 				period: periodKey,
