@@ -56,7 +56,10 @@ const send = async (req, res) => {
 				tokenTitle = category.title;
 			}
 
-			await sendFCMPushNotification(user.push_token, tokenTitle || '', message);
+			if(!category || category.notification_enabled) {
+				await sendFCMPushNotification(user.push_token, tokenTitle || '', message);
+			}
+
 		}
 
 		return res.status(201).json({ messageId: messageCreated.id });
