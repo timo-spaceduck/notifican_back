@@ -12,7 +12,7 @@ export const initial = async (req, res) => {
 		url: `https://api.notifican.com/${req.user.uuid}`,
 		apiKey: req.user.api_token,
 		limits: "Number of messages are limited to 10 000 per month",
-		lPage: true,
+		lPage: false,
 		categories: await Category.findAll({
 			where: { user_id: userId }
 		}),
