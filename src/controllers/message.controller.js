@@ -2,11 +2,12 @@ import Message from "../models/Message.js"
 import User from "../models/User.js"
 import { sendFCMPushNotification } from "../services/fcm.service.js"
 import Category from "../models/Category.js"
+import TelegramService from "../services/telegram.service.js"
 
 const send = async (req, res) => {
 	try {
 		const { uuid } = req.params;
-		const { message, categoryId, title, data } = req.body || {};
+		const { message, categoryId, title, data, telegram } = req.body || {};
 
 		const authHeader = req.headers.authorization;
 		if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -60,6 +61,10 @@ const send = async (req, res) => {
 				await sendFCMPushNotification(user.push_token, tokenTitle || '', message);
 			}
 
+		}
+
+		if(telegram) {
+			TelegramService.sendMessage(message).then().catch(console.error);
 		}
 
 		return res.status(201).json({ messageId: messageCreated.id });
